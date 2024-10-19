@@ -4,25 +4,80 @@ export default {
     data() {
         return {
             searchChannel: "",
+            user: {
+                username: "tutkuofnight",
+                id: 1
+            },
             channels: [
                 {
-                    name: "Channel 1",
-                    onlineCount: 12
+                    name: "birinci kanal",
+                    onlineCount: 12,
+                    totalJoiners: 30,
+                    maxJoinerCount: 50,
+                    creatorId: 1,
+                    joiners: [2]
                 },
                 {
-                    name: "Channel 2",
-                    onlineCount: 2
+                    name: "tutkunun yeri",
+                    onlineCount: 2,
+                    totalJoiners: 2,
+                    maxJoinerCount: 2,
+                    creatorId: 2,
+                    joiners: [1]
                 },
                 {
-                    name: "Channel 3",
-                    onlineCount: 1.253
+                    name: "bosver",
+                    onlineCount: 1253,
+                    totalJoiners: 2000,
+                    maxJoinerCount: 5000,
+                    creatorId: 1,
+                    joiners: [2]
                 }
             ],
-            full_rooms: false
+            filteredChannels: [],
+            fullRooms: false,
+            searchText: "",
+            filterTab: "" // "" = All channels | "my-channels" = My created channels | "joined-channels" = My joined channels
         }
+    },
+    watch: {
+        searchText(val){
+            this.filterChannels("search", val)
+        },
+        fullRooms(val){
+            val ? this.filterChannels("hide-full-rooms") : this.filterChannels()
+        }
+
     },
     components: {
         Channel
+    },
+    methods: {
+        filterChannels(filterType, filterText) {
+            switch (filterType) {
+                case "search":
+                    this.filteredChannels = this.channels.filter(chan => chan.name.includes(filterText))
+                    break
+                case "hide-full-rooms":
+                    this.filteredChannels =  this.channels.filter(chan => chan.onlineCount !== chan.totalJoiners)
+                    break
+                case "my-channels":
+                    this.filteredChannels = this.channels.filter(chan => chan.creatorId == this.user.id)
+                    break
+                case "joined-channels":
+                    this.filteredChannels = this.channels.filter(chan => chan.joiners.includes(this.user.id))
+                default:
+                    this.filteredChannels = this.channels
+                    break
+            }
+        },
+        tabListener(key){
+            this.filterTab == key ? this.filterTab = "" : this.filterTab = key
+            this.filterChannels(this.filterTab)
+        }
+    },
+    created(){
+        this.filteredChannels = this.channels
     }
 }
 </script>
@@ -41,9 +96,10 @@ export default {
             <div class="profile-area">
                 <Avatar label="T" size="xlarge" shape="circle" />
                 <div class="profile-info">
-                    <span class="username">@tutkuofnight</span>
+                    <span class="username">@{{ user.username }}</span>
                     <div class="options">
                         <Button severity="contrast" icon="pi pi-cog" rounded label="Settings" />
+                        <Button label="Create Channel" icon="pi pi-plus" rounded />
                     </div>
                 </div>
             </div>
@@ -52,23 +108,22 @@ export default {
             <div class="search">
                 <IconField>
                     <InputIcon class="pi pi-search" />
-                    <InputText id="in_label" v-model="searchChannel" autocomplete="off" variant="filled"
+                    <InputText id="in_label" v-model="searchText" autocomplete="off" variant="filled"
                         placeholder="Search.." />
                 </IconField>
                 <div class="flex items-center">
-                    <Checkbox v-model="full_rooms" inputId="ingredient1" name="full_rooms" value="Cheese" />
-                    <label for="ingredient1" class="ml-2"> Filter full rooms </label>
+                    <Checkbox v-model="fullRooms" inputId="rooms" :binary="true" />
+                    <label for="rooms" class="ml-2" style="user-select: none;"> Hide full rooms </label>
                 </div>
             </div>
             <div class="tabs">
-                <Button label="Create Channel" icon="pi pi-plus" />
-                <Button severity="contrast" label="My Channels" />
-                <Button label="Joined Channels" />
+                <Button :severity="filterTab == 'my-channels' ? 'contrast' : ''" label="My Channels" @click="tabListener('my-channels')" />
+                <Button :severity="filterTab == 'joined-channels' ? 'contrast' : ''" label="Joined Channels" @click="tabListener('joined-channels')" />
             </div>
         </section>
 
         <section class="channel-list">
-            <template v-for="(channel) in channels">
+            <template v-for="(channel) in filteredChannels">
                 <Channel :channel="channel" />
             </template>
         </section>
@@ -119,11 +174,13 @@ header {
         display: flex;
         gap: 20px;
         align-items: center;
+        width: 100%;
 
         .profile-info {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            flex: 1;
         }
 
         .username {
@@ -132,6 +189,8 @@ header {
 
         .options {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
     }
@@ -157,6 +216,17 @@ header {
     .tabs {
         display: flex;
         gap: 10px;
+        .p-button {
+            &:first-child {
+                border-top-left-radius: 2rem;
+                border-bottom-left-radius: 2rem;
+            }
+
+            &:last-child {
+                border-top-right-radius: 2rem;
+                border-bottom-right-radius: 2rem;
+            }
+        }
     }
 }
 

@@ -2,13 +2,26 @@
 export default {
     props: {
         channel: Object
+    },
+    data(){
+        return {
+            user: {
+                username: "tutkuofnight"
+            }
+        }
     }
 }
 </script>
 
 <template>
     <div class="channel-card">
-        <div class="channel-name">{{ channel.name }}</div>
+        <div class="channel-info">
+            <div class="channel-title">
+                <p>{{ channel.name }}</p>
+                <span>{{ channel.totalJoiners }}/{{ channel.maxJoinerCount }}</span>
+            </div>
+            <small>Author: {{ user.username }}</small>
+        </div>
         <div class="right">
             <div class="users">
                 <Avatar label="H" class="mr-2" style="background-color: #dee9fc; color: #1a2551" shape="circle" />
@@ -37,12 +50,24 @@ export default {
     transition: 300ms all;
     width: 100%;
     padding: 20px;
+    background: darken(#34d399, 49);
     &:hover {
         border-style: solid;
     }
-    .channel-name {
-        font-size: 18px;
-        font-style: italic;
+    .channel-info {
+        .channel-title {
+            font-size: 18px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            span {
+                font-weight: bold;
+            }
+        }
+        small {
+            color: gray;
+        }
     }
     .right {
         display: flex;
@@ -60,6 +85,7 @@ export default {
         justify-content: flex-end;
         gap: 5px;
         width: 60px;
+        font-weight: bold;
         .icon {
             background: var(--p-primary-400);
             width: 7px;
