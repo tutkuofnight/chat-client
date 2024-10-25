@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Aura from "@primevue/themes/aura"
+// import Aura from "@primevue/themes/aura"
+import CustomTheme from "./lib/theme"
 export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' }
@@ -15,7 +16,7 @@ export default defineNuxtConfig({
     autoImport: true,
     options: {
       theme: {
-        preset: Aura,
+        preset: CustomTheme,
         options: {
           darkModeSelector: 'system',
           cssLayer: false

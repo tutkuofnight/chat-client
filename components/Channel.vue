@@ -14,7 +14,8 @@ export default {
 </script>
 
 <template>
-    <div class="channel-card">
+    <NuxtLink :to="`/channel/${channel.id}`">
+        <div class="channel-card">
         <div class="channel-info">
             <div class="channel-title">
                 <p>{{ channel.name }}</p>
@@ -37,6 +38,7 @@ export default {
             </div>
         </div>
     </div>
+    </NuxtLink>
 </template>
 
 <style scoped lang="scss">
@@ -50,7 +52,7 @@ export default {
     transition: 300ms all;
     width: 100%;
     padding: 20px;
-    background: darken(#34d399, 49);
+    // background: darken(#34d399, 49);
     &:hover {
         border-style: solid;
     }

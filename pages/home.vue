@@ -1,5 +1,6 @@
 <script>
 import Channel from "@/components/Channel.vue"
+import Profile from "@/components/Profile.vue";
 export default {
     data() {
         return {
@@ -37,20 +38,21 @@ export default {
             filteredChannels: [],
             fullRooms: false,
             searchText: "",
+            inviteModal: false,
             filterTab: "" // "" = All channels | "my-channels" = My created channels | "joined-channels" = My joined channels
         }
     },
     watch: {
-        searchText(val){
+        searchText(val) {
             this.filterChannels("search", val)
         },
-        fullRooms(val){
+        fullRooms(val) {
             val ? this.filterChannels("hide-full-rooms") : this.filterChannels()
         }
 
     },
     components: {
-        Channel
+        Channel, Profile
     },
     methods: {
         filterChannels(filterType, filterText) {
@@ -59,7 +61,7 @@ export default {
                     this.filteredChannels = this.channels.filter(chan => chan.name.includes(filterText))
                     break
                 case "hide-full-rooms":
-                    this.filteredChannels =  this.channels.filter(chan => chan.onlineCount !== chan.totalJoiners)
+                    this.filteredChannels = this.channels.filter(chan => chan.onlineCount !== chan.totalJoiners)
                     break
                 case "my-channels":
                     this.filteredChannels = this.channels.filter(chan => chan.creatorId == this.user.id)
@@ -71,12 +73,12 @@ export default {
                     break
             }
         },
-        tabListener(key){
+        tabListener(key) {
             this.filterTab == key ? this.filterTab = "" : this.filterTab = key
             this.filterChannels(this.filterTab)
-        }
+        },
     },
-    created(){
+    created() {
         this.filteredChannels = this.channels
     }
 }
@@ -86,24 +88,22 @@ export default {
     <main>
         <header>
             <div>
-                <h1>GoChat</h1>
+                <h1 class="logo">GoChat</h1>
             </div>
             <div>
                 <Button severity="contrast" icon="pi pi-sign-out" rounded label="Logout" />
             </div>
         </header>
-        <section class="profile">
-            <div class="profile-area">
-                <Avatar label="T" size="xlarge" shape="circle" />
-                <div class="profile-info">
-                    <span class="username">@{{ user.username }}</span>
-                    <div class="options">
-                        <Button severity="contrast" icon="pi pi-cog" rounded label="Settings" />
-                        <Button label="Create Channel" icon="pi pi-plus" rounded />
-                    </div>
-                </div>
+        <Dialog v-model:visible="inviteModal" modal header="Paste Your Invite Link" :style="{ width: '400px' }">
+            <div>
+                <InputText style="width: 100%;" id="link" class="flex-auto" autocomplete="off" placeholder="Paste here..."  />
             </div>
-        </section>
+            <div class="dialog-bottom">
+                <Button type="button" label="Cancel" severity="secondary" @click="inviteModal = false"></Button>
+                <Button type="button" label="Join" @click="inviteModal = false"></Button>
+            </div>
+        </Dialog>
+        <Profile :user="user" @showInviteModal="(event) => inviteModal = event" />
         <section class="app-filter">
             <div class="search">
                 <IconField>
@@ -117,8 +117,10 @@ export default {
                 </div>
             </div>
             <div class="tabs">
-                <Button :severity="filterTab == 'my-channels' ? 'contrast' : ''" label="My Channels" @click="tabListener('my-channels')" />
-                <Button :severity="filterTab == 'joined-channels' ? 'contrast' : ''" label="Joined Channels" @click="tabListener('joined-channels')" />
+                <Button :outlined="filterTab == 'my-channels' ? false : true" label="My Channels"
+                    @click="tabListener('my-channels')" />
+                <Button :outlined="filterTab == 'joined-channels' ? false : true" label="Joined Channels"
+                    @click="tabListener('joined-channels')" />
             </div>
         </section>
 
@@ -132,6 +134,10 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.logo {
+    color: var(--p-primary-400);
+}
+
 main {
     width: 100%;
     height: 100vh;
@@ -164,49 +170,11 @@ header {
     }
 }
 
-.profile {
-    width: 100%;
-    margin: 20px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    &-area {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        width: 100%;
-
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .username {
-            font-size: 20px;
-        }
-
-        .options {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-    }
-
-    .p-avatar-xl {
-        width: 120px;
-        height: 120px;
-        font-size: 4rem;
-    }
-}
-
 .app-filter {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    
+
     .search {
         display: flex;
         align-items: center;
@@ -216,6 +184,7 @@ header {
     .tabs {
         display: flex;
         gap: 10px;
+
         .p-button {
             &:first-child {
                 border-top-left-radius: 2rem;
@@ -233,10 +202,9 @@ header {
 .channel-list {
     width: 100%;
     margin-top: 20px;
-
-    &>.channel-card {
-        margin-bottom: 20px;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 @media (min-width: 991px) {
