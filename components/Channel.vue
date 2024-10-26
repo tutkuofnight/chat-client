@@ -1,7 +1,8 @@
 <script>
 export default {
     props: {
-        channel: Object
+        channel: Object,
+        previewUsers: Boolean
     },
     data(){
         return {
@@ -24,7 +25,7 @@ export default {
             <small>Author: {{ user.username }}</small>
         </div>
         <div class="right">
-            <div class="users">
+            <div v-if="previewUsers" class="users">
                 <Avatar label="H" class="mr-2" style="background-color: #dee9fc; color: #1a2551" shape="circle" />
                 <Avatar label="B" class="mr-2" style="background-color: red; color: white" shape="circle" />
                 <Avatar label="T" class="mr-2" style="background-color: purple; color: white" shape="circle" />
@@ -52,7 +53,7 @@ export default {
     transition: 300ms all;
     width: 100%;
     padding: 20px;
-    // background: darken(#34d399, 49);
+    background: var(--item-background);
     &:hover {
         border-style: solid;
     }

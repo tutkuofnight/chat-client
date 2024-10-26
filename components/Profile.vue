@@ -8,13 +8,13 @@ export default {
 <template>
     <section class="profile">
         <div class="profile-area">
-            <Avatar label="T" size="xlarge" shape="circle" />
+            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username[0] : null" size="xlarge" shape="circle" />
             <div class="profile-info">
                 <span class="username">@{{ user.username }}</span>
                 <div class="options">
                     <Button severity="contrast" icon="pi pi-cog" rounded label="Settings" />
                     <div class="options-right">
-                        <Button label="Create" icon="pi pi-plus" rounded />
+                        <Button label="Create" icon="pi pi-plus" rounded @click="this.$emit('showCreateChannelModal', true)" />
                         <Button label="Join" icon="pi pi-link" rounded @click="this.$emit('showInviteModal', true)" />
                     </div>
                 </div>

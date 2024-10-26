@@ -7,10 +7,13 @@ export default {
             searchChannel: "",
             user: {
                 username: "tutkuofnight",
-                id: 1
+                id: 1,
+                avatar: "GW3q7jcW8AAQWgb.jpeg"
+
             },
             channels: [
                 {
+                    id: 1,
                     name: "birinci kanal",
                     onlineCount: 12,
                     totalJoiners: 30,
@@ -19,6 +22,7 @@ export default {
                     joiners: [2]
                 },
                 {
+                    id: 2,
                     name: "tutkunun yeri",
                     onlineCount: 2,
                     totalJoiners: 2,
@@ -27,6 +31,7 @@ export default {
                     joiners: [1]
                 },
                 {
+                    id: 3,
                     name: "bosver",
                     onlineCount: 1253,
                     totalJoiners: 2000,
@@ -39,6 +44,13 @@ export default {
             fullRooms: false,
             searchText: "",
             inviteModal: false,
+            createChannelModal: false,
+            test: null,
+            createChannel: {
+                name: "",
+                maxMembers: null
+            },
+            inviteLink: "",
             filterTab: "" // "" = All channels | "my-channels" = My created channels | "joined-channels" = My joined channels
         }
     },
@@ -94,16 +106,31 @@ export default {
                 <Button severity="contrast" icon="pi pi-sign-out" rounded label="Logout" />
             </div>
         </header>
+        
         <Dialog v-model:visible="inviteModal" modal header="Paste Your Invite Link" :style="{ width: '400px' }">
             <div>
-                <InputText style="width: 100%;" id="link" class="flex-auto" autocomplete="off" placeholder="Paste here..."  />
+                <InputText v-model="inviteLink" style="width: 100%;" id="link" class="flex-auto" autocomplete="off"
+                    placeholder="Paste here..." />
             </div>
             <div class="dialog-bottom">
                 <Button type="button" label="Cancel" severity="secondary" @click="inviteModal = false"></Button>
                 <Button type="button" label="Join" @click="inviteModal = false"></Button>
             </div>
         </Dialog>
-        <Profile :user="user" @showInviteModal="(event) => inviteModal = event" />
+
+        <Dialog v-model:visible="createChannelModal" modal header="Create a Channel" :style="{ width: '400px' }">
+            <div class="create-channel-form">
+                <InputText v-model="createChannel.name" id="channel-name" class="flex-auto" autocomplete="off" placeholder="Channel Name" />
+                <InputMask v-model="createChannel.maxMembers" id="max-members" mask="99" placeholder="Max Members" />
+            </div>
+            <div class="dialog-bottom">
+                <Button type="button" label="Cancel" severity="secondary" @click="createChannelModal = false"></Button>
+                <Button type="button" label="Save" @click="createChannelModal = false"></Button>
+            </div>
+        </Dialog>
+
+        <Profile :user="user" @showInviteModal="(event) => inviteModal = event" @showCreateChannelModal="(event) => createChannelModal = event" />
+        
         <section class="app-filter">
             <div class="search">
                 <IconField>
@@ -169,7 +196,11 @@ header {
         }
     }
 }
-
+.create-channel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 .app-filter {
     width: 100%;
     display: flex;

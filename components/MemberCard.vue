@@ -11,7 +11,7 @@ export default {
 <template>
     <div class="member-card">
         <div class="profile">
-            <Avatar label="T" shape="circle" />
+            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username[0] : null" shape="circle" />
             <p>@{{ user.username }}</p>
         </div>
         <div class="role">
@@ -23,9 +23,16 @@ export default {
 <style lang="scss" scoped>
 .member-card {
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 6px;
     border: 0.5px solid gray;
     display: flex;
-    align-items: center
+    align-items: center;
+    justify-content: space-between;
+    background: var(--item-background);
+    .profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 }
 </style>

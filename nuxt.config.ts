@@ -8,9 +8,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   css : ["primeicons/primeicons.css", "~/assets/scss/globals.scss"],
-  modules: [
-    "@primevue/nuxt-module"
-  ],
+  modules: ["@primevue/nuxt-module", "@pinia/nuxt", "@formkit/auto-animate"],
   primevue: {
     usePrimeVue: true,
     autoImport: true,
