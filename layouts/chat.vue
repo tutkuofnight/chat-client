@@ -1,0 +1,325 @@
+<script>
+import Channel from "../../components/Channel.vue";
+import MemberCard from "../../components/MemberCard.vue";
+import useUserStore from "~/store/user"
+import useChannelStore from "~/store/channel"
+export default {
+  components: {
+    Channel,
+    MemberCard,
+  },
+  data() {
+    return {
+      channels: [
+
+      ],
+      user: {
+        username: "tutkuofnight",
+        id: 1,
+        avatar: "GW3q7jcW8AAQWgb.jpeg",
+      },
+      filteredChannels: [],
+      fullRooms: false,
+      searchText: "",
+      createChannelModal: false,
+      test: null,
+      createChannel: {
+        name: "",
+        maxMembers: null,
+      },
+      inviteLink: "",
+      searchBar: false,
+      showLogoutInfo: false,
+      filterTab: "", // "" = All channels | "my-channels" = My created channels | "joined-channels" = My joined channels
+    };
+  },
+  watch: {
+    searchText(val) {
+      this.filterChannels("search", val);
+    },
+    fullRooms(val) {
+      val ? this.filterChannels("hide-full-rooms") : this.filterChannels();
+    },
+  },
+  methods: {
+    filterChannels(filterType, filterText) {
+      switch (filterType) {
+        case "search":
+          this.filteredChannels = this.channels.filter((chan) =>
+            chan.name.includes(filterText)
+          );
+          break;
+        case "hide-full-rooms":
+          this.filteredChannels = this.channels.filter(
+            (chan) => chan.onlineCount !== chan.totalJoiners
+          );
+          break;
+        case "my-channels":
+          this.filteredChannels = this.channels.filter(
+            (chan) => chan.creatorId == this.user.id
+          );
+          break;
+        case "joined-channels":
+          this.filteredChannels = this.channels.filter((chan) =>
+            chan.joiners.includes(this.user.id)
+          );
+        default:
+          this.filteredChannels = this.channels;
+          break;
+      }
+    },
+    tabListener(key) {
+      this.filterTab == key ? (this.filterTab = "") : (this.filterTab = key);
+      this.filterChannels(this.filterTab);
+    },
+    logout() {
+      const tokenCookie = useCookie("token")
+      tokenCookie.value = null
+      return this.$router.push("/")
+    }
+  },
+  setup() {
+    const userStore = useUserStore()
+    const channelStore = useChannelStore()
+
+    return { userStore, channelStore }
+  },
+  created() {
+    this.filteredChannels = this.channels;
+  },
+
+};
+</script>
+
+<template>
+  <div class="chat-template">
+    <Splitter>
+      <SplitterPanel :size="25">
+        <section class="app-filter">
+          <div class="tabs">
+            <Button :outlined="filterTab == 'my-channels' ? false : true" label="My Channels"
+              @click="tabListener('my-channels')" />
+            <Button :outlined="filterTab == 'joined-channels' ? false : true" label="Joined Channels"
+              @click="tabListener('joined-channels')" />
+            <Button icon="pi pi-search" @click="searchBar = !searchBar" />
+          </div>
+          <Transition>
+            <IconField v-if="searchBar">
+              <InputIcon class="pi pi-search" />
+              <InputText style="width: 100%; margin-top: 10px" id="in_label" v-model="searchText" autocomplete="off"
+                variant="filled" placeholder="Search.." />
+            </IconField>
+          </Transition>
+        </section>
+
+        <section class="channel-list">
+          <template v-for="channel in filteredChannels">
+            <Channel :channel="channel" />
+          </template>
+        </section>
+      </SplitterPanel>
+
+      <SplitterPanel :size="50" class="chat">
+        <Toolbar class="custom-toolbar">
+          <template #start>
+            <Avatar label="t" size="small" shape="circle" />
+          </template>
+
+          <template #center>
+            <!-- <p>{{ channel.name }}</p> -->
+          </template>
+
+          <template #end>
+            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary"></Button>
+          </template>
+        </Toolbar>
+        <slot />
+      </SplitterPanel>
+
+      <SplitterPanel :size="25">
+        <h3 style="height: 48px">Members</h3>
+        <div class="member-list">
+          <!-- <MemberCard :user="user" /> -->
+        </div>
+      </SplitterPanel>
+    </Splitter>
+
+  </div>
+</template>
+
+<style lang="scss">
+.custom-toolbar {
+  border: none !important;
+  border-bottom: 1px solid var(--p-toolbar-border-color);
+  margin-bottom: 40px;
+}
+
+.p-tablist-tab-list {
+  background: none;
+}
+
+.p-tabpanels {
+  background: none;
+  padding: 20px 0 !important;
+}
+
+.p-tabpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.p-iconfield {
+  width: 100%;
+}
+
+.app-filter {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-direction: column;
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+
+    .p-button {
+      min-width: 50px;
+
+      &:not(:last-child) {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.channel-list {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.member-list {
+  margin-top: 20px;
+}
+
+.chat-template {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+
+  main {
+    flex: 1;
+    position: relative;
+  }
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+
+  .messages-area {
+    flex: 1;
+  }
+}
+
+.channel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+
+  .title {
+    font-weight: bold;
+    font-size: 24px;
+  }
+}
+
+.message-list {
+  width: 100%;
+}
+
+.messages-area {
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  .message-wrapper {
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .message {
+    display: flex;
+    gap: 10px;
+    width: 60%;
+
+    &.my-message {
+      flex-direction: row-reverse;
+      position: absolute;
+      right: 0;
+
+      .content-top {
+        flex-direction: row-reverse;
+      }
+    }
+
+    .content-top {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .username,
+    .date {
+      font-size: 12px;
+      color: lightgray;
+      margin-bottom: 5px;
+    }
+
+    .text {
+      font-size: 14px;
+      border-radius: 6px;
+      background: var(--item-background);
+      padding: 15px;
+    }
+  }
+}
+
+.chat-input {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .p-inputtext {
+    width: 100%;
+  }
+}
+
+.p-splitter {
+  height: 100vh;
+}
+
+.p-splitterpanel {
+  padding: 20px;
+}
+
+@media (min-width: 991px) {}
+</style>

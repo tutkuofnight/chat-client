@@ -7,7 +7,7 @@
         width: 100%;
         padding: 0 20px;
         @media (min-width: 991px) {
-            width: 40%;
+            width: 30%;
         }
         h3 {
             margin-top: 5px;
@@ -39,10 +39,11 @@
                 justify-content: center;
             }
             a {
-                color: var(--p-green-400)
+                color: var(--p-primary-color)
             }
             .submit-btn {
                 width: 100%;
+                background: var(--p-primary-color);
             }
         }
     }

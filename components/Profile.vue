@@ -8,7 +8,7 @@ export default {
 <template>
     <section class="profile">
         <div class="profile-area">
-            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username[0] : null" size="xlarge" shape="circle" />
+            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username : null" size="xlarge" shape="circle" />
             <div class="profile-info">
                 <span class="username">@{{ user.username }}</span>
                 <div class="options">

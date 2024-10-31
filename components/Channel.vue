@@ -10,19 +10,19 @@ export default {
                 username: "tutkuofnight"
             }
         }
-    }
+    },
 }
 </script>
 
 <template>
-    <NuxtLink :to="`/channel/${channel.id}`">
+    <NuxtLink :to="`/in/${channel.id}`">
         <div class="channel-card">
         <div class="channel-info">
             <div class="channel-title">
                 <p>{{ channel.name }}</p>
                 <span>{{ channel.totalJoiners }}/{{ channel.maxJoinerCount }}</span>
             </div>
-            <small>Author: {{ user.username }}</small>
+            <small>Author: {{ channel.user.username }}</small>
         </div>
         <div class="right">
             <div v-if="previewUsers" class="users">

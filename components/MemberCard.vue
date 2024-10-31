@@ -11,7 +11,7 @@ export default {
 <template>
     <div class="member-card">
         <div class="profile">
-            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username[0] : null" shape="circle" />
+            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username : null" shape="circle" />
             <p>@{{ user.username }}</p>
         </div>
         <div class="role">
