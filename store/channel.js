@@ -2,7 +2,9 @@ import { defineStore } from "pinia"
 import request from "@/lib/repository"
 const channelStore = defineStore("channel", {
     state: () => ({
-        currentChannel: null,
+        ws: null,
+        channel: null,
+        messages: [],
         channelList: [
             {
                 id: 1,
@@ -44,8 +46,28 @@ const channelStore = defineStore("channel", {
         async getChannel(id) {
             const res = await request("get", `channel/${id}`)
             if (res.status !== 200) return res
-            this.currentChannel = res.channel   
+            this.channel = res.channel
+            this.messages.push(...res.channel.messages)
         },
+        async getAll(){
+            const res = await request("get", "channel/all")
+            if (res.status !== 200) return false
+            this.channelList = res.channels
+            return res.channels
+        },
+
+        connect(id){
+            this.ws = new WebSocket(`ws://localhost:3001/ws/${id}`)
+        },
+        sendMessage(data){
+            this.ws.send(JSON.stringify(data))
+        },
+        recieveMessageWatcher(){
+            this.ws.onmessage = (event) => {
+                this.messages.push(JSON.parse(event.data))
+            };
+        }
+
     }
 })
 

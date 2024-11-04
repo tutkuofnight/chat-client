@@ -1,5 +1,6 @@
 
 <script>
+import useUserStore from '~/store/user';
 export default {
   data(){
     return {
@@ -12,7 +13,17 @@ export default {
       this.joinChannelDialog = false
       this.$router.push('/in/' + this.joinChannelId)  
     }
-  }   
+  },
+  setup(){
+    const userStore = useUserStore()
+
+    return { userStore }
+  },
+  // created(){
+  //   const result = this.userStore.session()
+  //   if (result == false) this.$router.push("/")
+  //   this.filteredChannels = this.channels;
+  // }
 }
 </script>
 <template>
@@ -28,11 +39,9 @@ export default {
       </div>
     </section>
 
-    <Dialog v-model:visible="joinChannelDialog" modal header="Edit Profile" :style="{ width: '25rem' }">
-      <span class="text-surface-500 dark:text-surface-400 block mb-8">Enter Channel ID</span>
+    <Dialog v-model:visible="joinChannelDialog" modal header="Join Chanel" :style="{ width: '25rem' }" class="">
       <div class="flex items-center gap-4 mb-4">
-        <label for="channelId" class="font-semibold w-24">Channel ID</label>
-        <InputText v-model="joinChannelId" id="channelId" class="flex-auto" autocomplete="off" />
+        <InputText v-model="joinChannelId" placeholder="Enter Channel ID" id="channelId" class="flex-auto" autocomplete="off" />
       </div>
       <div class="flex justify-end gap-2">
         <Button type="button" label="Cancel" severity="secondary" @click="joinChannelDialog = false"></Button>

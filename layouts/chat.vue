@@ -10,14 +10,6 @@ export default {
   },
   data() {
     return {
-      channels: [
-
-      ],
-      user: {
-        username: "tutkuofnight",
-        id: 1,
-        avatar: "GW3q7jcW8AAQWgb.jpeg",
-      },
       filteredChannels: [],
       fullRooms: false,
       searchText: "",
@@ -78,16 +70,17 @@ export default {
       return this.$router.push("/")
     }
   },
-  setup() {
+  async setup() {
     const userStore = useUserStore()
     const channelStore = useChannelStore()
-
     return { userStore, channelStore }
   },
-  created() {
-    this.filteredChannels = this.channels;
-  },
-
+  async created() {
+    const res = await this.userStore.session()
+    if (!res) this.$router.push("/")
+    const channels = await this.channelStore.getAll()
+    if (!channels) console.log(channels)
+  }
 };
 </script>
 
@@ -113,7 +106,7 @@ export default {
         </section>
 
         <section class="channel-list">
-          <template v-for="channel in filteredChannels">
+          <template v-for="channel in channelStore.channelList">
             <Channel :channel="channel" />
           </template>
         </section>
@@ -122,15 +115,16 @@ export default {
       <SplitterPanel :size="50" class="chat">
         <Toolbar class="custom-toolbar">
           <template #start>
-            <Avatar label="t" size="small" shape="circle" />
+            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary" style="transform: rotate(180deg);"></Button>
           </template>
-
+          
           <template #center>
-            <!-- <p>{{ channel.name }}</p> -->
+            <p v-if=" channelStore.channel">{{ channelStore.channel.name }}</p>
+            <p v-else>GoChat</p>
           </template>
-
+          
           <template #end>
-            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary"></Button>
+            <Avatar label="t" size="small" shape="circle" />
           </template>
         </Toolbar>
         <slot />

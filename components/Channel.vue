@@ -4,25 +4,18 @@ export default {
         channel: Object,
         previewUsers: Boolean
     },
-    data(){
-        return {
-            user: {
-                username: "tutkuofnight"
-            }
-        }
-    },
 }
 </script>
 
 <template>
-    <NuxtLink :to="`/in/${channel.id}`">
+    <NuxtLink :to="`/in/${channel.Id}`">
         <div class="channel-card">
         <div class="channel-info">
             <div class="channel-title">
                 <p>{{ channel.name }}</p>
-                <span>{{ channel.totalJoiners }}/{{ channel.maxJoinerCount }}</span>
+                <span>{{ channel?.totalJoiners }}/{{ channel?.maxJoinerCount }}</span>
             </div>
-            <small>Author: {{ channel.user.username }}</small>
+            <small>Author: Suan yok</small>
         </div>
         <div class="right">
             <div v-if="previewUsers" class="users">
@@ -35,7 +28,7 @@ export default {
             </div>
             <div class="online-status">
                 <div class="icon"></div>
-                {{ channel.onlineCount }}
+                {{ channel?.onlineCount }}
             </div>
         </div>
     </div>

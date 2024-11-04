@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import request from "@/lib/repository"
 const userStore = defineStore('user', {
-  state:  () => ({ user: null, token: null }),
+  state:  () => ({ user: null }),
 
   actions: {
     async signin({username, password}){
@@ -17,6 +17,7 @@ const userStore = defineStore('user', {
       }
       this.token = res.token
       this.user = res.user
+      this.user.profileImage = res.user.profileImage || "default-avatar.jpg"
       // const cookie = setCookie()
       // setCookie(res, "token", res.token, {
       //   maxAge: res.exp,
@@ -39,12 +40,17 @@ const userStore = defineStore('user', {
       })
       return { status, message }
     },
-    setToken(token) {
-      this.token = token
-    },
-    update(){}
+    async session(){
+      const token = useCookie("token")
+      if (!token) return false
+      const res = await request("get", "user/session")
+      if (res.user) {
+        this.user = res.user
+        return true
+      }
+      return false
+    }
   }
-
 })
 
 export default userStore

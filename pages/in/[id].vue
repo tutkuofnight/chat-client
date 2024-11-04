@@ -12,71 +12,50 @@ export default {
     },
     data() {
         return {
-            text: ""
+            text: "",
         }
     },
     methods: {
-
+        handleMessageText() {
+            this.channelStore.sendMessage({
+                text: this.text,
+                user: this.userStore.user
+            })
+            this.text = ""
+        }
     },
-    async setup(){
-        const route = useRoute()    
+    async setup() {
+        const route = useRoute()
         const id = route.params.id
         const channelStore = useChannelStore()
-        const socketStore = useSocketStore()
         const userStore = useUserStore()
         const err = await channelStore.getChannel(id)
-        if (!err) socketStore.connect(id)
-        return { socket: socketStore, channel: channelStore, user: userStore }
+        if (!err) channelStore.connect(id)
+        return { channelStore, userStore }
+    },
+    created() {
+        this.channelStore.recieveMessageWatcher()
     }
-    
+
 }
-</script>   
+</script>
 <template>
     <NuxtLayout name="chat">
-
-        <div class="channel-header">
-            <Button icon="pi pi-arrow-left" severity="secondary" raised @click="$router.go(-1)" />
-            <p class="title">{{ channel.currentChannel.name }}</p>
-            <div></div>
-        </div>
-
         <ScrollPanel style="width: 100%; height: 100%" class="messages-area">
             <div class="message-list">
-                <div class="message-wrapper">
-                    <div class="message">
+                <div class="message-wrapper" v-for="(msg, index) in channelStore.messages" :key="index">
+                    <div class="message" :class="{ 'my-message': msg.user_id == userStore.user.id }">
                         <div>
-                            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username : null"
+                            <Avatar :image="`/images/${msg.user.profileImage ?? 'default-avatar.jpg'}`"
                                 shape="circle" />
                         </div>
                         <div class="content">
                             <div class="content-top">
-                                <div class="username">{{ user.username }}</div>
+                                <div class="username">{{ msg.user.username }}</div>
                                 <div class="date"></div>
                             </div>
                             <div class="text">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus enim
-                                quae
-                                magni
-                                inventore corrupti culpa, ratione error quos esse maxime repudiandae reiciendis
-                                fuga
-                                voluptatibus eaque aspernatur veritatis ducimus odio consequatur!
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="message-wrapper">
-                    <div class="message my-message">
-                        <div>
-                            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username : null"
-                                shape="circle" />
-                        </div>
-                        <div class="content">
-                            <div class="content-top">
-                                <div class="username">{{ user.username }}</div>
-                                <div class="date"></div>
-                            </div>
-                            <div class="text">
-                                asdasdasdasdasdasdasdasd
+                                {{ msg.text }}
                             </div>
                         </div>
                     </div>
@@ -84,10 +63,10 @@ export default {
             </div>
         </ScrollPanel>
 
-        <div class="chat-input">
+        <form @submit.prevent.enter="handleMessageText()" class="chat-input">
             <InputText size="large" type="text" placeholder="Text here.." v-model="text" variant="filled" />
-            <Button size="large" icon="pi pi-send" severity="secondary" raised />
-        </div>
+            <Button type="submit" size="large" icon="pi pi-send" severity="secondary" raised />
+        </form>
 
     </NuxtLayout>
 </template>
@@ -183,7 +162,8 @@ export default {
 
 .message-list {
     width: 100%;
-
+    display: flex;
+    flex-direction: column;
 }
 
 .messages-area {
@@ -205,9 +185,8 @@ export default {
         width: 60%;
 
         &.my-message {
+            width: 100%;
             flex-direction: row-reverse;
-            position: absolute;
-            right: 0;
 
             .content-top {
                 flex-direction: row-reverse

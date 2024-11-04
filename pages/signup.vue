@@ -61,7 +61,7 @@ export default {
                     </FloatLabel>
                 </div>
                 <div class="bottom">
-                    <Button :disabled="waiting ? true : false" class="submit-btn" type="submit" label="Sign In" severity="success" raised size="large" />
+                    <Button :disabled="waiting ? true : false" class="submit-btn" type="submit" label="Sign Up" severity="success" raised size="large" />
                     <div class="redirect-link">
                         <NuxtLink to="/">Do you have account? Sign In</NuxtLink>
                     </div>

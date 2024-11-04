@@ -6,12 +6,7 @@ const socketStore = defineStore('socket', {
     }),
 
     actions: {
-        connect(id){
-            this.ws = new WebSocket(`ws://localhost:3001/ws/${id}`)
-        },
-        sendMessage(text){
-            // 
-        }
+
     }
 
 })
