@@ -1,22 +1,16 @@
-<script>
-export default {
-    props: {
-        user: {
-            type: Object,
-            required: true
-        }
-    }
-}
+<script setup>
+const { member } = defineProps(["member"])
 </script>
+
 <template>
     <div class="member-card">
         <div class="profile">
-            <Avatar :image="`/images/${user.avatar}`" :label="!user.avatar ? user.username : null" shape="circle" />
-            <p>@{{ user.username }}</p>
+            <Avatar :image="`/images/${member.profileImage || 'default-avatar.jpg'}`" shape="circle" />
+            <p>@{{ member.username }}</p>
         </div>
-        <div class="role">
+        <small class="role">
             Member
-        </div>
+        </small>
     </div>
 </template>
 
@@ -33,6 +27,9 @@ export default {
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+    .role {
+        color: rgb(185, 185, 185);
     }
 }
 </style>

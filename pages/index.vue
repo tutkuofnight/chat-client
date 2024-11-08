@@ -1,29 +1,26 @@
-<script>
+<script setup>
 import useUserStore from "@/store/user"
-export default {
-    data() {
-        return {
-            username: "",
-            password: "",
-            error: {
-                status: null,
-                message: ""
-            },
-            waiting: false
-        }
-    },
-    methods: {
-        async signin(){
-            this.waiting = true
-            const store = useUserStore()
-            const { status, message } = await store.signin({username: this.username, password: this.password})
-            if (status) this.waiting = false
-            if(status == 200)
-                this.$router.push("/in")
-            else this.error = { message,status }
-        }
-    }
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+const store = useUserStore()
+
+const username = ref("")
+const password = ref("")
+const error = reactive({
+    status: null,
+    message: ""
+})
+const waiting = ref(false)
+
+const signin = async () => {
+    waiting.valueOf = true
+    const { status, message } = await store.signin({ username: username.value, password: password.value })
+    if (status) waiting.value = false
+    if (status == 200) router.push("/in")
+    else error = { message, status }
 }
+
 </script>
 
 <template>
@@ -34,7 +31,8 @@ export default {
                 <h1>GoChat</h1>
             </div>
             <h3>Sign In</h3>
-            <Message style="margin-bottom: 20px;" v-if="error.message" :severity="error.status == 200 ? 'success' : 'error'">{{ error.message }}</Message>
+            <Message style="margin-bottom: 20px;" v-if="error.message"
+                :severity="error.status == 200 ? 'success' : 'error'">{{ error.message }}</Message>
             <form @submit.prevent="signin()">
                 <div class="auth-card">
                     <FloatLabel variant="in">
@@ -47,7 +45,8 @@ export default {
                     </FloatLabel>
                 </div>
                 <div class="bottom">
-                    <Button type="submit" class="submit-btn" label="Sign In" severity="success" raised size="large" />
+                    <Button :disabled="waiting ? true : false" type="submit" class="submit-btn" label="Sign In"
+                        severity="success" raised size="large" />
                     <div class="redirect-link">
                         <NuxtLink to="/signup">Create account</NuxtLink>
                     </div>

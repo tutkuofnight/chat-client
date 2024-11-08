@@ -1,87 +1,71 @@
-<script>
-import Channel from "../../components/Channel.vue";
-import MemberCard from "../../components/MemberCard.vue";
+<script setup>
 import useUserStore from "~/store/user"
 import useChannelStore from "~/store/channel"
-export default {
-  components: {
-    Channel,
-    MemberCard,
-  },
-  data() {
-    return {
-      filteredChannels: [],
-      fullRooms: false,
-      searchText: "",
-      createChannelModal: false,
-      test: null,
-      createChannel: {
-        name: "",
-        maxMembers: null,
-      },
-      inviteLink: "",
-      searchBar: false,
-      showLogoutInfo: false,
-      filterTab: "", // "" = All channels | "my-channels" = My created channels | "joined-channels" = My joined channels
-    };
-  },
-  watch: {
-    searchText(val) {
-      this.filterChannels("search", val);
-    },
-    fullRooms(val) {
-      val ? this.filterChannels("hide-full-rooms") : this.filterChannels();
-    },
-  },
-  methods: {
-    filterChannels(filterType, filterText) {
-      switch (filterType) {
-        case "search":
-          this.filteredChannels = this.channels.filter((chan) =>
-            chan.name.includes(filterText)
-          );
-          break;
-        case "hide-full-rooms":
-          this.filteredChannels = this.channels.filter(
-            (chan) => chan.onlineCount !== chan.totalJoiners
-          );
-          break;
-        case "my-channels":
-          this.filteredChannels = this.channels.filter(
-            (chan) => chan.creatorId == this.user.id
-          );
-          break;
-        case "joined-channels":
-          this.filteredChannels = this.channels.filter((chan) =>
-            chan.joiners.includes(this.user.id)
-          );
-        default:
-          this.filteredChannels = this.channels;
-          break;
-      }
-    },
-    tabListener(key) {
-      this.filterTab == key ? (this.filterTab = "") : (this.filterTab = key);
-      this.filterChannels(this.filterTab);
-    },
-    logout() {
-      const tokenCookie = useCookie("token")
-      tokenCookie.value = null
-      return this.$router.push("/")
-    }
-  },
-  async setup() {
-    const userStore = useUserStore()
-    const channelStore = useChannelStore()
-    return { userStore, channelStore }
-  },
-  async created() {
-    const res = await this.userStore.session()
-    if (!res) this.$router.push("/")
-    const channels = await this.channelStore.getAll()
-    if (!channels) console.log(channels)
+
+import { useRouter } from "vue-router"
+import { onMounted } from "vue"
+
+const router = useRouter()
+const userStore = useUserStore()
+const channelStore = useChannelStore()
+
+const filteredChannels = ref([])
+const searchText = ref("")
+const createChannel = reactive({
+  name: "",
+  maxMembers: ""
+})
+const inviteLink = ref("")
+const searchBar = ref("")
+const showLogoutInfo = ref(false)
+const filterTab = ref("")
+
+const filterChannels = (filterType, filterText) => {
+  switch (filterType) {
+    case "search":
+      filteredChannels.value = this.channels.filter((chan) =>
+        chan.name.includes(filterText)
+      );
+      break;
+    case "hide-full-rooms":
+      filteredChannels.value = this.channels.filter(
+        (chan) => chan.onlineCount !== chan.totalJoiners
+      );
+      break;
+    case "my-channels":
+      filteredChannels.value = this.channels.filter(
+        (chan) => chan.creatorId == this.user.id
+      );
+      break;
+    case "joined-channels":
+      filteredChannels.value = this.channels.filter((chan) =>
+        chan.joiners.includes(this.user.id)
+      );
+    default:
+      filteredChannels.value = this.channels;
+      break;
   }
-};
+}
+const tabListener = (key) => {
+  filterTab.value == key ? (filterTab.value = "") : (filterTab.value = key);
+  filterChannels(filterTab.value);
+}
+const logout = () => {
+  const tokenCookie = useCookie("token")
+  tokenCookie.value = null
+  return router.push("/")
+}
+
+watch(searchText, (val) => {
+  filterChannels("search", val);
+})
+
+onMounted(async () => {
+  const res = await userStore.session()
+  if (!res) router.push("/")
+  const channels = await channelStore.getAll()
+  if (!channels) console.log(channels)
+})
 </script>
 
 <template>
@@ -105,7 +89,7 @@ export default {
           </Transition>
         </section>
 
-        <section class="channel-list">
+        <section class="channel-list" v-if="channelStore.channelList">
           <template v-for="channel in channelStore.channelList">
             <Channel :channel="channel" />
           </template>
@@ -115,16 +99,17 @@ export default {
       <SplitterPanel :size="50" class="chat">
         <Toolbar class="custom-toolbar">
           <template #start>
-            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary" style="transform: rotate(180deg);"></Button>
+            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary"
+              style="transform: rotate(180deg);"></Button>
           </template>
-          
+
           <template #center>
-            <p v-if=" channelStore.channel">{{ channelStore.channel.name }}</p>
+            <p v-if="channelStore.channel">{{ channelStore.channel.name }}</p>
             <p v-else>GoChat</p>
           </template>
-          
+
           <template #end>
-            <Avatar label="t" size="small" shape="circle" />
+            <EditProfile />
           </template>
         </Toolbar>
         <slot />
@@ -132,8 +117,10 @@ export default {
 
       <SplitterPanel :size="25">
         <h3 style="height: 48px">Members</h3>
-        <div class="member-list">
-          <!-- <MemberCard :user="user" /> -->
+        <div class="member-list" v-if="channelStore.channel">
+          <template v-for="member in channelStore.channel.users">
+            <MemberCard :member="member" />
+          </template>
         </div>
       </SplitterPanel>
     </Splitter>
@@ -206,7 +193,9 @@ export default {
 }
 
 .member-list {
-  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .chat-template {
@@ -266,8 +255,6 @@ export default {
 
     &.my-message {
       flex-direction: row-reverse;
-      position: absolute;
-      right: 0;
 
       .content-top {
         flex-direction: row-reverse;

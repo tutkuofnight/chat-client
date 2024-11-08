@@ -1,10 +1,4 @@
-<script>
-export default {
-    props: {
-        user: { type: Object, required: true }
-    }
-}
-</script>
+<script setup></script>
 <template>
     <section class="profile">
         <div class="profile-area">

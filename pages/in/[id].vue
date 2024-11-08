@@ -1,66 +1,44 @@
-<script>
-import Channel from "../../components/Channel.vue";
-import MemberCard from "../../components/MemberCard.vue";
-import useSocketStore from "~/store/socket";
+<script setup>
 import useChannelStore from "~/store/channel";
 import useUserStore from "~/store/user";
 import { useRoute } from 'vue-router'
-export default {
-    components: {
-        Channel,
-        MemberCard,
-    },
-    data() {
-        return {
-            text: "",
-        }
-    },
-    methods: {
-        handleMessageText() {
-            this.channelStore.sendMessage({
-                text: this.text,
-                user: this.userStore.user
-            })
-            this.text = ""
-        }
-    },
-    async setup() {
-        const route = useRoute()
-        const id = route.params.id
-        const channelStore = useChannelStore()
-        const userStore = useUserStore()
-        const err = await channelStore.getChannel(id)
-        if (!err) channelStore.connect(id)
-        return { channelStore, userStore }
-    },
-    created() {
-        this.channelStore.recieveMessageWatcher()
-    }
+import { onMounted, onDeactivated } from "vue";
 
+const route = useRoute()
+const id = route.params.id
+const channelStore = useChannelStore()
+const userStore = useUserStore()
+const err = await channelStore.getChannel(id)
+if (!err) channelStore.connect(id)
+
+const text = ref("")
+const handleMessageText = () => {
+    channelStore.sendMessage({
+        text: text.value,
+        user: userStore.user
+    })
+    text.value = ""
 }
+
+onMounted(() => this.channelStore.recieveMessageWatcher())
+onDeactivated(() => {
+    window.addEventListener("beforeunload", () => {
+        if (channelStore.ws) {
+            channelStore.ws.close()
+        }
+    })
+})
 </script>
+
 <template>
     <NuxtLayout name="chat">
         <ScrollPanel style="width: 100%; height: 100%" class="messages-area">
             <div class="message-list">
                 <div class="message-wrapper" v-for="(msg, index) in channelStore.messages" :key="index">
-                    <div class="message" :class="{ 'my-message': msg.user_id == userStore.user.id }">
-                        <div>
-                            <Avatar :image="`/images/${msg.user.profileImage ?? 'default-avatar.jpg'}`"
-                                shape="circle" />
-                        </div>
-                        <div class="content">
-                            <div class="content-top">
-                                <div class="username">{{ msg.user.username }}</div>
-                                <div class="date"></div>
-                            </div>
-                            <div class="text">
-                                {{ msg.text }}
-                            </div>
-                        </div>
-                    </div>
+                    <ChatMessage :message="msg" />
                 </div>
             </div>
+
         </ScrollPanel>
 
         <form @submit.prevent.enter="handleMessageText()" class="chat-input">
@@ -177,40 +155,6 @@ export default {
         width: 100%;
         position: relative;
         margin-bottom: 20px;
-    }
-
-    .message {
-        display: flex;
-        gap: 10px;
-        width: 60%;
-
-        &.my-message {
-            width: 100%;
-            flex-direction: row-reverse;
-
-            .content-top {
-                flex-direction: row-reverse
-            }
-        }
-
-        .content-top {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .username,
-        .date {
-            font-size: 12px;
-            color: lightgray;
-            margin-bottom: 5px;
-        }
-
-        .text {
-            font-size: 14px;
-            border-radius: 6px;
-            background: var(--item-background);
-            padding: 15px;
-        }
     }
 
 }

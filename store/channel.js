@@ -5,35 +5,8 @@ const channelStore = defineStore("channel", {
         ws: null,
         channel: null,
         messages: [],
-        channelList: [
-            {
-                id: 1,
-                name: "birinci kanal",
-                onlineCount: 12,
-                totalJoiners: 30,
-                maxJoinerCount: 50,
-                creatorId: 1,
-                joiners: [2],
-            },
-            {
-                id: 2,
-                name: "tutkunun yeri",
-                onlineCount: 2,
-                totalJoiners: 2,
-                maxJoinerCount: 2,
-                creatorId: 2,
-                joiners: [1],
-            },
-            {
-                id: 3,
-                name: "bosver",
-                onlineCount: 1253,
-                totalJoiners: 2000,
-                maxJoinerCount: 5000,
-                creatorId: 1,
-                joiners: [2],
-            },
-        ]
+        onlineMembersCount: 0,
+        channelList: []
     }),
     getters: {
         // getMembers: ({ channel }) => channel.members,
@@ -44,18 +17,23 @@ const channelStore = defineStore("channel", {
         //     this.currentChannel = this.channelList.find(chan => chan.id == id)
         // },
         async getChannel(id) {
+            this.channel = ""
+            this.messages = []
             const res = await request("get", `channel/${id}`)
             if (res.status !== 200) return res
             this.channel = res.channel
-            this.messages.push(...res.channel.messages)
+            this.messages.push(...res.messages)
         },
         async getAll(){
             const res = await request("get", "channel/all")
+            console.log(res)
             if (res.status !== 200) return false
             this.channelList = res.channels
             return res.channels
         },
-
+        getMessageUser(id){
+            return this.channel.users.find(user => user.id == id)
+        },
         connect(id){
             this.ws = new WebSocket(`ws://localhost:3001/ws/${id}`)
         },
@@ -64,10 +42,12 @@ const channelStore = defineStore("channel", {
         },
         recieveMessageWatcher(){
             this.ws.onmessage = (event) => {
-                this.messages.push(JSON.parse(event.data))
+                const data = JSON.parse(event.data)
+                console.log(data)
+                this.messages.push(data.message)
+                this.onlineMembersCount = data.onlineCount
             };
         }
-
     }
 })
 

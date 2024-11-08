@@ -1,31 +1,17 @@
+<script setup>
+import { useRouter } from 'vue-router'
 
-<script>
-import useUserStore from '~/store/user';
-export default {
-  data(){
-    return {
-      joinChannelDialog: false,
-      joinChannelId: null
-    }
-  },
-  methods: {
-    joinChannel(){
-      this.joinChannelDialog = false
-      this.$router.push('/in/' + this.joinChannelId)  
-    }
-  },
-  setup(){
-    const userStore = useUserStore()
+const router = useRouter()
 
-    return { userStore }
-  },
-  // created(){
-  //   const result = this.userStore.session()
-  //   if (result == false) this.$router.push("/")
-  //   this.filteredChannels = this.channels;
-  // }
+const joinChannelDialog = ref(false)
+const joinChannelId = ref(null)
+
+const joinChannel = () => {
+  joinChannelDialog.value = false
+  router.push(`/in/${joinChannelId.value}`)
 }
 </script>
+
 <template>
   <NuxtLayout name="chat">
 

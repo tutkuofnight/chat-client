@@ -1,10 +1,13 @@
-<script>
-export default {
-    props: {
-        channel: Object,
-        previewUsers: Boolean
-    },
-}
+<script setup>
+import { useRoute } from "vue-router"
+import useChannelStore from "@/store/channel"
+
+const { channel } = defineProps(["channel"])
+const channelStore = useChannelStore()
+
+const route = useRoute()
+
+
 </script>
 
 <template>
@@ -15,20 +18,20 @@ export default {
                 <p>{{ channel.name }}</p>
                 <span>{{ channel?.totalJoiners }}/{{ channel?.maxJoinerCount }}</span>
             </div>
-            <small>Author: Suan yok</small>
+            <small>Author: {{ channel.users.find(user => user.id == channel.admin_id).username }}</small>
         </div>
         <div class="right">
-            <div v-if="previewUsers" class="users">
+            <!-- <div v-if="previewUsers" class="users">
                 <Avatar label="H" class="mr-2" style="background-color: #dee9fc; color: #1a2551" shape="circle" />
                 <Avatar label="B" class="mr-2" style="background-color: red; color: white" shape="circle" />
                 <Avatar label="T" class="mr-2" style="background-color: purple; color: white" shape="circle" />
                 <Avatar label="S" class="mr-2" style="background-color: blue; color: white" shape="circle" />
                 <Avatar label="M" class="mr-2" style="background-color: aqua; color: #1a2551" shape="circle" />
                 <i class="pi pi-plus" style="font-size: 12px; margin-left: 8px;"></i>
-            </div>
+            </div> -->
             <div class="online-status">
                 <div class="icon"></div>
-                {{ channel?.onlineCount }}
+                {{ route.params.id == channel.id ? channelStore?.onlineMembersCount : 0 }}
             </div>
         </div>
     </div>
