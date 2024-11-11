@@ -2,26 +2,36 @@
 import useUserStore from "@/store/user"
 import { useRouter } from "vue-router"
 
-const router = useRouter()
-const store = useUserStore()
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/yup'
+import { loginSchema } from "@/lib/validation-schemas"
 
-const username = ref("")
-const password = ref("")
-const matchPassword = ref("")
+const router = useRouter()
+
 const error = reactive({
     status: null,
     message: ""
 })
 const waiting = ref(false)
 
+const { errors, defineField, values } = useForm({
+    validationSchema: toTypedSchema(loginSchema),
+})
+const [username, usernameAttrs] = defineField('username')
+const [password, passwordAttrs] = defineField('password')
+const [matchPassword, matchPasswordAttrs] = defineField('matchPassword')
+
 const signup = async () => {
-    waiting.valueOf = true
+    waiting.value = true
     if (password.value !== matchPassword.value) {
         return error = {
             status: 404,
             message: "Password is not matched"
         }
     }
+    if (Object.keys(values).length == 0 || Object.keys(errors).length > 0)
+        waiting.value = false
+
     const store = useUserStore()
     const { status, message } = await store.signup({ username: username.value, password: password.value })
     error = { status, message }
@@ -46,15 +56,15 @@ const signup = async () => {
             <form @submit.prevent="signup()">
                 <div class="auth-card">
                     <FloatLabel variant="in">
-                        <InputText id="username" v-model="username" />
+                        <InputText id="username" v-model="username" v-bind="usernameAttrs" />
                         <label for="username">Username</label>
                     </FloatLabel>
                     <FloatLabel variant="in">
-                        <Password v-model="password" toggleMask />
+                        <Password v-model="password" v-bind="passwordAttrs" toggleMask />
                         <label for="password">Password</label>
                     </FloatLabel>
                     <FloatLabel variant="in">
-                        <Password v-model="matchPassword" toggleMask />
+                        <Password v-model="matchPassword" v-bind="matchPasswordAttrs" toggleMask />
                         <label for="matchPassword">Confirm Password</label>
                     </FloatLabel>
                 </div>

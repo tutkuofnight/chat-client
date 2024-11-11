@@ -12,13 +12,16 @@
   "dependencies": {
     "@nuxt/image": "^1.8.1",
     "@primevue/themes": "^4.1.1",
+    "@vee-validate/yup": "^4.14.7",
     "nuxt": "^3.13.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.1.1",
     "sass": "^1.80.2",
     "sass-loader": "^16.0.2",
+    "vee-validate": "^4.14.7",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@formkit/auto-animate": "^0.8.2",

@@ -23,9 +23,9 @@ const saveChanges = () => {
     <Button class="profile-btn" :unstyled="true" @click="visible = true">
         <Avatar :image="`/images/${userStore.user.profileImage || 'default-avatar.jpg'}`" size="small" shape="circle" />
     </Button>
-    <Dialog class="profile-dialog" v-model:visible="visible" modal header="Edit Profile" :style="{ width: '25rem' }">
+    <Dialog class="profile-dialog" v-model:visible="visible" modal header="Edit Profile" :style="{ width: '50rem' }">
         <div class="upload-profile-image">
-            <Avatar :image="`/images/${userStore.user.profileImage || 'default-avatar.jpg'}`" size="xlarge"
+            <Avatar :image="`/images/${userStore.user.profileImage || 'default-avatar.jpg'}`" size="xlarge" style="width: 100px; height: auto;"
                 shape="circle" />
             <div class="upload-area">
                 <p>Change Profile Image</p>
@@ -52,6 +52,10 @@ const saveChanges = () => {
 }
 
 .profile-dialog {
+    .p-dialog-content {
+        display: flex;
+        justify-content: center;
+    }
     .upload-profile-image {
         display: flex;
         align-items: center;

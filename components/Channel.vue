@@ -18,7 +18,7 @@ const route = useRoute()
                 <p>{{ channel.name }}</p>
                 <span>{{ channel?.totalJoiners }}/{{ channel?.maxJoinerCount }}</span>
             </div>
-            <small>Author: {{ channel.users.find(user => user.id == channel.admin_id).username }}</small>
+            <small>Author: {{ channel.users.find(user => user.id == channel.authorId).username }}</small>
         </div>
         <div class="right">
             <!-- <div v-if="previewUsers" class="users">
