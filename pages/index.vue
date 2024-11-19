@@ -24,8 +24,8 @@ const [password, passwordAttrs] = defineField('password')
 
 const signin = async () => {
     waiting.value = true
-    if (Object.keys(values).length == 0 || Object.keys(errors).length > 0) 
-        return waiting.value = false
+    // if (Object.keys(values).length == 0 || Object.keys(errors).length > 0) 
+    //     return waiting.value = false
 
     const { status, message } = await store.signin({ username: username.value, password: password.value })
     if (status) waiting.value = false

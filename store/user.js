@@ -11,22 +11,20 @@ const userStore = defineStore('user', {
           password
         }
       })
-      console.log(res)
+      
       if (res.status !== 200) {
         return {status: res.status, message: res.message}
       }
+
       this.token = res.token
       this.user = res.user
       this.user.profileImage = res.user.profileImage || "default-avatar.jpg"
-      // const cookie = setCookie()
-      // setCookie(res, "token", res.token, {
-      //   maxAge: res.exp,
-      //   sameSite: 'strict'
-      // })
+
       const tokenCookie = useCookie('token', {
         maxAge: res.exp,
         sameSite: 'strict'
       })
+      
       tokenCookie.value = res.token
       
       return {status: res.status, message: res.message}
@@ -49,6 +47,27 @@ const userStore = defineStore('user', {
         return true
       }
       return false
+    },
+    async updateProfileImage(file) {
+      const formData = new FormData()
+      console.log(file)
+      formData.append("profileImage", file)
+      
+      // const res = await request("post", "user/update-profile-image", {
+      //   body: formData
+      // })
+      const res = await fetch("http://localhost:3001/user/update-profile-image", {
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        method: "POST",
+        credentials: 'include'
+      })
+      if (res.status !== 200) {
+        console.log("yuklenmedi knk")
+      }
+      return res
     }
   }
 })

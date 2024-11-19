@@ -29,13 +29,17 @@ const signup = async () => {
             message: "Password is not matched"
         }
     }
-    if (Object.keys(values).length == 0 || Object.keys(errors).length > 0)
-        waiting.value = false
+    if (Object.keys(values).length == 0 || Object.keys(errors).length > 0){
+        return waiting.value = false
+    }
 
     const store = useUserStore()
     const { status, message } = await store.signup({ username: username.value, password: password.value })
     error = { status, message }
-    if (status) this.waiting = false
+    
+    if (status) {
+        this.waiting = false
+    }
     if (status == 300) {
         setTimeout(() => {
             router.push("/")

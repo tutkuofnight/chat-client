@@ -18,6 +18,7 @@
     "primevue": "^4.1.1",
     "sass": "^1.80.2",
     "sass-loader": "^16.0.2",
+    "uuid": "^11.0.3",
     "vee-validate": "^4.14.7",
     "vue": "latest",
     "vue-router": "latest",

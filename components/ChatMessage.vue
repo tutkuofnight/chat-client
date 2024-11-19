@@ -6,13 +6,13 @@ const userStore = useUserStore()
 
 
 <template>
-    <div class="message" :class="{ 'my-message': message.User.Id == userStore.user.id }">
+    <div class="message" :class="{ 'my-message': message.user.Id == userStore.user.id }">
         <div>
-            <Avatar :image="`/images/${message.User.profile_image || 'default-avatar.jpg'}`" shape="circle" />
+            <Avatar :image="`/images/${message.user.profileImage}`" shape="circle" />
         </div>
         <div class="content">
             <div class="content-top">
-                <div class="username">{{ message.User.username }}</div>
+                <div class="username">{{ message.user.username }}</div>
                 <div class="date"></div>
             </div>
             <div class="text">

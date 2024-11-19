@@ -10,7 +10,7 @@ export default {
 <template>
   <div>
     <NuxtPage />
-    <Footer />
+    <!-- <Footer /> -->
   </div>
 </template>
 

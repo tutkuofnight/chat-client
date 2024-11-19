@@ -8,8 +8,7 @@ const route = useRoute()
 const id = route.params.id
 const channelStore = useChannelStore()
 const userStore = useUserStore()
-const err = await channelStore.getChannel(id)
-if (!err) channelStore.connect(id)
+
 
 const text = ref("")
 const handleMessageText = () => {
@@ -20,7 +19,18 @@ const handleMessageText = () => {
     text.value = ""
 }
 
-onMounted(() => this.channelStore.recieveMessageWatcher())
+onMounted(async () => {
+    const err = await channelStore.get(id)
+    useHead({
+        title: channelStore.channel.name
+    })
+    if (!err && !channelStore.ws) {
+        channelStore.connect(id)
+    }
+    if (channelStore.ws) {
+        channelStore.recieveMessageWatcher()
+    }
+})
 onDeactivated(() => {
     window.addEventListener("beforeunload", () => {
         if (channelStore.ws) {
@@ -32,14 +42,11 @@ onDeactivated(() => {
 
 <template>
     <NuxtLayout name="chat">
-        <ScrollPanel style="width: 100%; height: 100%" class="messages-area">
-            <div class="message-list">
-                <div class="message-wrapper" v-for="(msg, index) in channelStore.messages" :key="index">
-                    <ChatMessage :message="msg" />
-                </div>
+        <div class="message-list">
+            <div class="message-wrapper" v-for="(msg, index) in channelStore.messages" :key="index">
+                <ChatMessage :message="msg" />
             </div>
-
-        </ScrollPanel>
+        </div>
 
         <form @submit.prevent.enter="handleMessageText()" class="chat-input">
             <InputText size="large" type="text" placeholder="Text here.." v-model="text" variant="filled" />
@@ -99,7 +106,9 @@ onDeactivated(() => {
     gap: 20px;
 }
 
-
+.p-scrollpanel-content-container {
+    width: 100%;
+}
 
 .member-list {
     margin-top: 20px;
@@ -142,6 +151,10 @@ onDeactivated(() => {
     width: 100%;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    gap: 20px;
+    padding: 0 10px;
 }
 
 .messages-area {

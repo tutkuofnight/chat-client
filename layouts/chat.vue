@@ -61,8 +61,10 @@ watch(searchText, (val) => {
 })
 
 onMounted(async () => {
-  const res = await userStore.session()
-  if (!res) router.push("/")
+  if (!userStore.user) {
+    const res = await userStore.session()
+    if (!res) router.push("/")
+  }
   const channels = await channelStore.getAll()
   if (!channels) console.log(channels)
 })
@@ -72,24 +74,16 @@ onMounted(async () => {
   <div class="chat-template">
     <Splitter>
       <SplitterPanel :size="25">
+        <p style="margin-bottom: 10px;">My Channels</p>
         <section class="app-filter">
-          <div class="tabs">
-            <Button :outlined="filterTab == 'my-channels' ? false : true" label="My Channels"
-              @click="tabListener('my-channels')" />
-            <Button :outlined="filterTab == 'joined-channels' ? false : true" label="Joined Channels"
-              @click="tabListener('joined-channels')" />
-            <Button icon="pi pi-search" @click="searchBar = !searchBar" />
-          </div>
-          <Transition>
-            <IconField v-if="searchBar">
-              <InputIcon class="pi pi-search" />
-              <InputText style="width: 100%; margin-top: 10px" id="in_label" v-model="searchText" autocomplete="off"
-                variant="filled" placeholder="Search.." />
-            </IconField>
-          </Transition>
+          <IconField>
+            <InputIcon class="pi pi-search" style="top: 28px;" />
+            <InputText style="width: 100%; margin-top: 10px" id="in_label" v-model="searchText" autocomplete="off"
+              variant="filled" placeholder="Search.." />
+          </IconField>
         </section>
 
-        <section class="channel-list" v-if="channelStore.channelList">
+        <section class="channel-list">
           <template v-for="channel in channelStore.channelList">
             <Channel :channel="channel" />
           </template>
@@ -99,25 +93,31 @@ onMounted(async () => {
       <SplitterPanel :size="50" class="chat">
         <Toolbar class="custom-toolbar">
           <template #start>
-            <Button outlined @click="logout()" icon="pi pi-sign-out" severity="secondary"
-              style="transform: rotate(180deg);"></Button>
+            <Button outlined @click="$router.push('/in')" icon="pi pi-arrow-left" label="Go Home" severity="secondary"></Button>
           </template>
 
           <template #center>
             <p v-if="channelStore.channel">{{ channelStore.channel.name }}</p>
-            <p v-else>GoChat</p>
+            <h3 v-else>GoChat</h3>
           </template>
 
           <template #end>
-            <EditProfile />
+            <ClientOnly>
+              <Profile />
+            </ClientOnly>
           </template>
         </Toolbar>
         <slot />
       </SplitterPanel>
 
       <SplitterPanel :size="25">
-        <h3 style="height: 48px">Members</h3>
-        <div class="member-list" v-if="channelStore.channel">
+        <div class="flex-between">
+          <p>Members</p>
+          <template v-if="channelStore?.channel?.authorUsername == userStore?.user?.username">
+            <InviteModal />
+          </template>
+        </div>
+        <div class="member-list" v-if="channelStore.channel?.users">
           <template v-for="member in channelStore.channel.users">
             <MemberCard :member="member" />
           </template>

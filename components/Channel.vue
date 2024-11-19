@@ -11,14 +11,14 @@ const route = useRoute()
 </script>
 
 <template>
-    <NuxtLink :to="`/in/${channel.Id}`">
+    <NuxtLink :to="`/in/${channel.id}`">
         <div class="channel-card">
         <div class="channel-info">
             <div class="channel-title">
                 <p>{{ channel.name }}</p>
-                <span>{{ channel?.totalJoiners }}/{{ channel?.maxJoinerCount }}</span>
+                <span>{{ channel.users?.length }}/{{ channel.maxMembers }}</span>
             </div>
-            <small>Author: {{ channel.users.find(user => user.id == channel.authorId).username }}</small>
+            <small>Author: {{ channel.authorUsername }}</small>
         </div>
         <div class="right">
             <!-- <div v-if="previewUsers" class="users">
